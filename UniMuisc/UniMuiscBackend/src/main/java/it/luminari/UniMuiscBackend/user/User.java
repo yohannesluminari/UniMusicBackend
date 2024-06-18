@@ -1,7 +1,7 @@
 package it.luminari.UniMuiscBackend.user;
 
 
-import it.luminari.UniMuiscBackend.item.Item;
+import it.luminari.UniMuiscBackend.post.Post;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.List;
+
 
 @Entity
 @Data
@@ -40,5 +41,5 @@ public class User {
 
 
     @OneToMany
-    private List<Item> items;
+    private List<Post> posts;
 }
