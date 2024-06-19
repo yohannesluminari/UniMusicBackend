@@ -44,7 +44,6 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Post> posts;
 
-    // In User.java
     @OneToMany(mappedBy = "user")
     private List<Item> items;
 
