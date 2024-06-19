@@ -1,5 +1,6 @@
 package it.luminari.UniMuiscBackend.item;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -7,39 +8,49 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/items")
+@RequestMapping("/items")
 public class ItemController {
 
     @Autowired
     private ItemService itemService;
 
     @GetMapping
-    public ResponseEntity<List<ItemResponse>> findAll() {
-        return ResponseEntity.ok(itemService.findAll());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ItemResponse> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(itemService.findById(id));
+    public List<ItemResponse> getAllItems() {
+        return itemService.findAll();
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ItemResponse>> findAllByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(itemService.findAllByUserId(userId));
+    public List<ItemResponse> getItemsByUserId(@PathVariable Long userId) {
+        return itemService.findAllByUserId(userId);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ItemResponse> getItemById(@PathVariable Long id) {
+        return ResponseEntity.ok(itemService.findById(id));
+    }
+
+    @GetMapping("/available/{status}")
+    public List<ItemResponse> getItemsByAvailability(@PathVariable String status) {
+        return itemService.findByAvailability(status);
     }
 
     @PostMapping
-    public ResponseEntity<ItemResponse> create(@RequestBody ItemRequest itemRequest) {
+    public ResponseEntity<ItemResponse> createItem(@RequestBody @Valid ItemRequest itemRequest) {
         return ResponseEntity.ok(itemService.create(itemRequest));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ItemResponse> modify(@PathVariable Long id, @RequestBody ItemRequest itemRequest) {
+    public ResponseEntity<ItemResponse> updateItem(@PathVariable Long id, @RequestBody @Valid ItemRequest itemRequest) {
         return ResponseEntity.ok(itemService.modify(id, itemRequest));
     }
 
+    @PatchMapping("/{id}/availability")
+    public ResponseEntity<ItemResponse> updateItemAvailability(@PathVariable Long id, @RequestBody String status) {
+        return ResponseEntity.ok(itemService.updateAvailability(id, status));
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
+    public ResponseEntity<String> deleteItem(@PathVariable Long id) {
         return ResponseEntity.ok(itemService.delete(id));
     }
 }

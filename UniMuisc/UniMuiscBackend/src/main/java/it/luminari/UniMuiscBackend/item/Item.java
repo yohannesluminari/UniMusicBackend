@@ -27,6 +27,11 @@ public class Item {
     @NotBlank(message = "Description is mandatory and can't be empty")
     @Size(max = 1000, message = "Description must be less than 1000 characters")
     private String description;
+    
+    @NotNull
+    @NotBlank
+    private String available; // New field for availability status
+
 
     @NotNull
     @DecimalMin(value = "0.0", inclusive = false) // Oppure @DecimalMin(value = "0.01") per un valore minimo positivo non zero

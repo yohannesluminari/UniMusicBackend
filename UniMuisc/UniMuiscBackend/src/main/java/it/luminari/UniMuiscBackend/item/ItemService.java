@@ -35,6 +35,10 @@ public class ItemService {
         return mapToResponse(item);
     }
 
+    public List<ItemResponse> findByAvailability(String available) {
+        return itemRepository.findByAvailable(available).stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
     public ItemResponse create(@Valid ItemRequest itemRequest) {
         User user = userRepository.findById(itemRequest.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User non trovato"));
@@ -67,12 +71,20 @@ public class ItemService {
         return "Item eliminato";
     }
 
+    public ItemResponse updateAvailability(Long id, String available) {
+        Item item = itemRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Item non trovato"));
+        item.setAvailable(available);
+        Item updatedItem = itemRepository.save(item);
+        return mapToResponse(updatedItem);
+    }
+
     private @NotNull ItemResponse mapToResponse(Item item) {
         ItemResponse response = new ItemResponse();
         response.setId(item.getId());
         response.setTitle(item.getTitle());
         response.setDescription(item.getDescription());
         response.setPrice(item.getPrice());
+        response.setAvailable(item.getAvailable()); // Aggiungi lo stato di disponibilità nella risposta
         response.setUserId(item.getUser().getId());
         response.setUsername(item.getUser().getUsername());
         response.setCreatedAt(item.getCreatedAt().toString());

@@ -9,4 +9,7 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
     List<Item> findAllByUserId(Long userId);
+
+    List<Item> findByAvailable(String available);
+
 }
