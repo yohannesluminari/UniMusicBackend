@@ -1,52 +1,28 @@
 package it.luminari.UniMuiscBackend.post;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
 public class PostRequest {
 
-    @NotNull(message = "User ID is mandatory")
-    private Long userId;
+    @NotBlank(message = "Title is mandatory and can't be empty")
+    @Size(max = 100, message = "Title must be less than 100 characters")
+    private String title;
 
-    @NotBlank(message = "Description is mandatory")
-    @Size(max = 255, message = "Description must be less than 255 characters")
-    private String description;
+    @NotBlank(message = "Content is mandatory and can't be empty")
+    @Size(max = 1000, message = "Content must be less than 1000 characters")
+    private String content;
 
-    @Size(max = 255, message = "Image URL/path must be less than 255 characters")
-    private String image;
+    private Long userId; // ID dell'utente autore del post
 
+    private Double rating;
 
-    // Constructor, getters, and setters
-    public PostRequest(Long userId, String description, String image) {
+    public PostRequest(String title, String content, Long userId, Double rating) {
+        this.title = title;
+        this.content = content;
         this.userId = userId;
-        this.description = description;
-        this.image = image;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
+        this.rating = rating;
     }
 }

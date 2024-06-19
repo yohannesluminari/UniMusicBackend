@@ -1,6 +1,7 @@
 package it.luminari.UniMuiscBackend.user;
 
 
+import it.luminari.UniMuiscBackend.item.Item;
 import it.luminari.UniMuiscBackend.post.Post;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -40,6 +41,11 @@ public class User {
     private String avatar; // Lombok generates getter and setter for this field
 
 
-    @OneToMany
+    @OneToMany(mappedBy = "user")
     private List<Post> posts;
+
+    // In User.java
+    @OneToMany(mappedBy = "user")
+    private List<Item> items;
+
 }

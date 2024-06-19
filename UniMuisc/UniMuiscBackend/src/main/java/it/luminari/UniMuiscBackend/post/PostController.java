@@ -1,6 +1,5 @@
 package it.luminari.UniMuiscBackend.post;
 
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,32 +14,32 @@ public class PostController {
     private PostService postService;
 
     @GetMapping
-    public ResponseEntity<List<Post>> getAllPosts() {
-        List<Post> posts = postService.findAllPosts();
-        return ResponseEntity.ok(posts);
+    public ResponseEntity<List<PostResponse>> findAll() {
+        return ResponseEntity.ok(postService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Post> getPostById(@PathVariable Long id) {
-        Post post = postService.findPostById(id);
-        return ResponseEntity.ok(post);
+    public ResponseEntity<PostResponse> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(postService.findById(id));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<PostResponse>> findAllByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(postService.findAllByUserId(userId));
     }
 
     @PostMapping
-    public ResponseEntity<PostResponse> createPost(@Valid @RequestBody PostRequest request) {
-        PostResponse post = postService.createPost(request);
-        return ResponseEntity.ok(post);
+    public ResponseEntity<PostResponse> create(@RequestBody PostRequest postRequest) {
+        return ResponseEntity.ok(postService.create(postRequest));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @Valid @RequestBody PostRequest request) {
-        PostResponse post = postService.updatePost(id, request);
-        return ResponseEntity.ok(post);
+    public ResponseEntity<PostResponse> modify(@PathVariable Long id, @RequestBody PostRequest postRequest) {
+        return ResponseEntity.ok(postService.modify(id, postRequest));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
-        return ResponseEntity.ok("Post deleted successfully");
+    public ResponseEntity<String> delete(@PathVariable Long id) {
+        return ResponseEntity.ok(postService.delete(id));
     }
 }

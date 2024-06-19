@@ -1,76 +1,35 @@
 package it.luminari.UniMuiscBackend.post;
 
-
 import it.luminari.UniMuiscBackend.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
 
 import java.time.LocalDateTime;
 
 @Entity
 @Data
 @Table(name = "posts")
-@Setter
-@Getter
 public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Description is mandatory and can't be empty")
-    @Column(nullable = false, length = 255)
-    private String description;
+    @NotBlank(message = "Title is mandatory and can't be empty")
+    @Size(max = 100, message = "Title must be less than 100 characters")
+    private String title;
 
-    @NotNull(message = "Publication date is mandatory")
-    @Column(nullable = false)
-    private LocalDateTime publicationDate;
+    @NotBlank(message = "Content is mandatory and can't be empty")
+    @Size(max = 1000, message = "Content must be less than 1000 characters")
+    private String content;
 
-    @Column(length = 255)
-    private String image; // Path or URL of the image for the post
+    private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public void setPublicationDate(LocalDateTime publicationDate) {
-        this.publicationDate = publicationDate;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public LocalDateTime getPublicationDate() {
-        return publicationDate;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public User getUser() {
-        return user;
-    }
+    private Double rating;
 }

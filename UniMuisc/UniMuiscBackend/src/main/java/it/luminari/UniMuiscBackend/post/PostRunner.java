@@ -1,5 +1,7 @@
 package it.luminari.UniMuiscBackend.post;
 
+import it.luminari.UniMuiscBackend.user.User;
+import it.luminari.UniMuiscBackend.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -14,22 +16,24 @@ import java.util.List;
 public class PostRunner implements ApplicationRunner {
 
     @Autowired
+    private PostRepository postRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private PostService postService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        if (postService.findAllPosts().isEmpty()) {
-            List<PostRequest> postRequests = Arrays.asList(
-                    new PostRequest(1L, "First post", "image1.jpg"),
-                    new PostRequest(2L, "Second post", "image2.jpg"),
-                    new PostRequest(3L, "Third post", "image3.jpg")
+        if (postRepository.count() == 0) {
+            List<PostRequest> posts = Arrays.asList(
+                    new PostRequest("First Post", "Content of the first post", 1L, 4.5),
+                    new PostRequest("Second Post", "Content of the second post", 2L, 3.0),
+                    new PostRequest("Third Post", "Content of the third post", 3L, 5.0)
             );
 
-            for (PostRequest request : postRequests) {
-                PostResponse createdPost = postService.createPost(request);
-                System.out.println("Created post with ID: " + createdPost.getId());
-            }
-
+            posts.forEach(postRequest -> postService.create(postRequest));
             System.out.println("--- Posts inseriti ---");
         } else {
             System.out.println("--- Posts già inseriti ---");
