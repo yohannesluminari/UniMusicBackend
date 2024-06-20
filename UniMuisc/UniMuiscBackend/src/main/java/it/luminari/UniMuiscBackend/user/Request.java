@@ -3,9 +3,11 @@ package it.luminari.UniMuiscBackend.user;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class Request {
 
     @NotBlank(message = "Username is mandatory and can't be empty")
@@ -23,11 +25,4 @@ public class Request {
 
     @Size(max = 255, message = "Avatar URL/path must be less than 255 characters")
     private String avatar;
-
-    public Request(String username, String password, String email, String avatar) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.avatar = avatar;
-    }
 }

@@ -10,5 +10,5 @@ public class Response {
     private String email;
     private String avatar; // Avatar URL/path
 
-    // Constructors, if needed, can be added for creating responses from user entities
+
 }

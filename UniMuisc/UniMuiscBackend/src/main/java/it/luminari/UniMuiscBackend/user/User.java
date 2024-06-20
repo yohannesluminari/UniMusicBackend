@@ -35,8 +35,8 @@ public class User {
     @Size(max = 100, message = "Email must be less than 100 characters")
     private String email;
 
-    @Column(length = 255) // Adjust length as needed for storing avatar image path or URL
-    private String avatar; // Lombok generates getter and setter for this field
+    @Column(length = 255)
+    private String avatar;
 
     @OneToMany(mappedBy = "user")
     private List<Post> posts;

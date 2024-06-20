@@ -2,9 +2,11 @@ package it.luminari.UniMuiscBackend.post;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class PostRequest {
 
     @NotBlank(message = "Title is mandatory and can't be empty")
@@ -22,11 +24,4 @@ public class PostRequest {
     @Size(max = 255, message = "Image URL/path must be less than 255 characters")
     private String image;
 
-    public PostRequest(String title, String content, Long userId, Double rating, String image) {
-        this.title = title;
-        this.content = content;
-        this.userId = userId;
-        this.rating = rating;
-        this.image = image;
-    }
 }

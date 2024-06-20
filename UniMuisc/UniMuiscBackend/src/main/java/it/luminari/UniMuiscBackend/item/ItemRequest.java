@@ -4,11 +4,14 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
 import lombok.Data;
+
 
 import java.math.BigDecimal;
 
 @Data
+
 public class ItemRequest {
 
     @NotNull
@@ -31,13 +34,13 @@ public class ItemRequest {
     @Size(max = 255, message = "Image URL/path must be less than 255 characters")
     private String image; // New field for image URL/path
 
-    // Constructor with all fields
-    public ItemRequest(String title, String description, BigDecimal price, Long userId, String available, String image) {
-        this.title = title;
-        this.description = description;
-        this.price = price;
-        this.userId = userId;
-        this.available = available;
-        this.image = image;
-    }
+ // Constructor with all fields
+  public ItemRequest(String title, String description, BigDecimal price, Long userId, String available, String image) {
+      this.title = title;
+      this.description = description;
+      this.price = price;
+      this.userId = userId;
+      this.available = available;
+      this.image = image;
+  }
 }
