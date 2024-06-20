@@ -19,10 +19,14 @@ public class PostRequest {
 
     private Double rating;
 
-    public PostRequest(String title, String content, Long userId, Double rating) {
+    @Size(max = 255, message = "Image URL/path must be less than 255 characters")
+    private String image;
+
+    public PostRequest(String title, String content, Long userId, Double rating, String image) {
         this.title = title;
         this.content = content;
         this.userId = userId;
         this.rating = rating;
+        this.image = image;
     }
 }

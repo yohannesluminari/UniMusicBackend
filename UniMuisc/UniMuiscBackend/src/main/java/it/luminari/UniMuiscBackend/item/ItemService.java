@@ -4,7 +4,6 @@ import it.luminari.UniMuiscBackend.user.User;
 import it.luminari.UniMuiscBackend.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,7 @@ public class ItemService {
     }
 
     public ItemResponse findById(Long id) {
-        Item item = itemRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Item non trovato"));
+        Item item = itemRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Item not found"));
         return mapToResponse(item);
     }
 
@@ -41,7 +40,7 @@ public class ItemService {
 
     public ItemResponse create(@Valid ItemRequest itemRequest) {
         User user = userRepository.findById(itemRequest.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException("User non trovato"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         Item item = new Item();
         BeanUtils.copyProperties(itemRequest, item);
@@ -53,7 +52,7 @@ public class ItemService {
     }
 
     public ItemResponse modify(Long id, ItemRequest itemRequest) {
-        Item item = itemRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Item non trovato"));
+        Item item = itemRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Item not found"));
 
         BeanUtils.copyProperties(itemRequest, item);
         item.setCreatedAt(LocalDateTime.now());
@@ -64,30 +63,31 @@ public class ItemService {
 
     public String delete(Long id) {
         if (!itemRepository.existsById(id)) {
-            throw new EntityNotFoundException("Item non trovato");
+            throw new EntityNotFoundException("Item not found");
         }
 
         itemRepository.deleteById(id);
-        return "Item eliminato";
+        return "Item deleted";
     }
 
     public ItemResponse updateAvailability(Long id, String available) {
-        Item item = itemRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Item non trovato"));
+        Item item = itemRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Item not found"));
         item.setAvailable(available);
         Item updatedItem = itemRepository.save(item);
         return mapToResponse(updatedItem);
     }
 
-    private @NotNull ItemResponse mapToResponse(Item item) {
+    private ItemResponse mapToResponse(Item item) {
         ItemResponse response = new ItemResponse();
         response.setId(item.getId());
         response.setTitle(item.getTitle());
         response.setDescription(item.getDescription());
         response.setPrice(item.getPrice());
-        response.setAvailable(item.getAvailable()); // Aggiungi lo stato di disponibilità nella risposta
+        response.setAvailable(item.getAvailable());
         response.setUserId(item.getUser().getId());
         response.setUsername(item.getUser().getUsername());
         response.setCreatedAt(item.getCreatedAt().toString());
+        response.setImage(item.getImage()); // Set image in the response
         return response;
     }
 }

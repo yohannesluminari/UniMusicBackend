@@ -75,6 +75,7 @@ public class PostService {
         response.setUsername(post.getUser().getUsername());
         response.setRating(post.getRating());
         response.setCreatedAt(post.getCreatedAt().toString());
+        response.setImage(post.getImage()); // Set image in the response
         return response;
     }
 }

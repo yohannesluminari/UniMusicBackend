@@ -32,4 +32,7 @@ public class Post {
     private User user;
 
     private Double rating;
+
+    @Column(length = 255)
+    private String image;
 }

@@ -24,7 +24,6 @@ public class Request {
     @Size(max = 255, message = "Avatar URL/path must be less than 255 characters")
     private String avatar;
 
-
     public Request(String username, String password, String email, String avatar) {
         this.username = username;
         this.password = password;

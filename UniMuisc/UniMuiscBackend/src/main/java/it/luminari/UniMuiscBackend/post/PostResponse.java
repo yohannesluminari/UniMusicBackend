@@ -12,4 +12,5 @@ public class PostResponse {
     private String username;
     private Double rating;
     private String createdAt;
+    private String image;
 }

@@ -1,6 +1,5 @@
 package it.luminari.UniMuiscBackend.user;
 
-
 import it.luminari.UniMuiscBackend.item.Item;
 import it.luminari.UniMuiscBackend.post.Post;
 import jakarta.persistence.*;
@@ -10,7 +9,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.List;
-
 
 @Entity
 @Data
@@ -29,7 +27,7 @@ public class User {
     @Column(nullable = false, length = 100)
     @NotBlank(message = "Password is mandatory")
     @Size(max = 100, message = "Password must be less than 100 characters")
-    private String password; // Lombok generates getter and setter for this field
+    private String password;
 
     @Column(nullable = false, length = 100)
     @NotBlank(message = "Email is mandatory")
@@ -40,11 +38,9 @@ public class User {
     @Column(length = 255) // Adjust length as needed for storing avatar image path or URL
     private String avatar; // Lombok generates getter and setter for this field
 
-
     @OneToMany(mappedBy = "user")
     private List<Post> posts;
 
     @OneToMany(mappedBy = "user")
     private List<Item> items;
-
 }

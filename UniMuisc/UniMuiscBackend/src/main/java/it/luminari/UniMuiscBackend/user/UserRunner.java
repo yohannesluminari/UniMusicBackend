@@ -22,21 +22,27 @@ public class UserRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         if (userRepository.count() == 0) {
-            List<Request> user = Arrays.asList(
+            List<Request> users = Arrays.asList(
                     new Request("user1", "password1", "user1@example.com", "avatar1.jpg"),
                     new Request("user2", "password2", "user2@example.com", "avatar2.jpg"),
                     new Request("user3", "password3", "user3@example.com", "avatar3.jpg"),
-
-                    new Request("user4", "password4", "user2@example.com", "avatar4.jpg"),
-                    new Request("user5", "password5", "user3@example.com", "avatar5.jpg"),
-                    new Request("user6", "password6", "user4@example.com", "avatar6.jpg")
-
+                    new Request("user4", "password4", "user4@example.com", "avatar4.jpg"),
+                    new Request("user5", "password5", "user5@example.com", "avatar5.jpg"),
+                    new Request("user6", "password6", "user6@example.com", "avatar6.jpg")
             );
 
-            user.forEach(request -> userService.create(request));
-            System.out.println("--- User inseriti ---");
+            users.forEach(request -> {
+                User user = new User();
+                user.setUsername(request.getUsername());
+                user.setPassword(request.getPassword());
+                user.setEmail(request.getEmail());
+                user.setAvatar(request.getAvatar());
+                userRepository.save(user);
+            });
+
+            System.out.println("--- Users inserted ---");
         } else {
-            System.out.println("--- User già inseriti ---");
+            System.out.println("--- Users already inserted ---");
         }
     }
 }

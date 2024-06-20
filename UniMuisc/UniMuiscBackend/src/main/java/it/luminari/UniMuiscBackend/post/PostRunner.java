@@ -28,9 +28,9 @@ public class PostRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         if (postRepository.count() == 0) {
             List<PostRequest> posts = Arrays.asList(
-                    new PostRequest("First Post", "Content of the first post", 1L, 4.5),
-                    new PostRequest("Second Post", "Content of the second post", 2L, 3.0),
-                    new PostRequest("Third Post", "Content of the third post", 3L, 5.0)
+                    new PostRequest("First Post", "Content of the first post", 1L, 4.5, "image1.jpg"),
+                    new PostRequest("Second Post", "Content of the second post", 2L, 3.0, "image2.jpg"),
+                    new PostRequest("Third Post", "Content of the third post", 3L, 5.0, "image3.jpg")
             );
 
             posts.forEach(postRequest -> postService.create(postRequest));
