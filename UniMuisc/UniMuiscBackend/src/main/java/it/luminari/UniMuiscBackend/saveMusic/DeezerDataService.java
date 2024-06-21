@@ -39,7 +39,7 @@ public class DeezerDataService {
     @Transactional
     public void fetchAndSaveData() {
         List<String> artistsToSave = Arrays.asList(
-                "Tedua", "Sfera Ebbasta", "Ernia"
+                "Tedua", "Sfera Ebbasta", "Ernia", "Drake","Dua Lipa","Nayt"
         );
 
         artistsToSave.forEach(this::saveArtistData);
