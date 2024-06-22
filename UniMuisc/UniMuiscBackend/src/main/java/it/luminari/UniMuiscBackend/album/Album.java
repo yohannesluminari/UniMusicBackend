@@ -1,9 +1,8 @@
 package it.luminari.UniMuiscBackend.album;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import it.luminari.UniMuiscBackend.artist.Artist;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -18,4 +17,7 @@ public class Album {
     private String coverBig;
     private String tracklist;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "artist_id") // Nome della colonna che collega l'album all'artista
+    private Artist artist;
 }

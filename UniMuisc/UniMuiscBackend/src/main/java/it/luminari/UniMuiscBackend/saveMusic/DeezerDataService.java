@@ -39,7 +39,7 @@ public class DeezerDataService {
     @Transactional
     public void fetchAndSaveData() {
         List<String> artistsToSave = Arrays.asList(
-                "Tedua", "Sfera Ebbasta", "Ernia", "Drake","Dua Lipa","Nayt","Marracash"
+                "Nayt", "Tedua", "Sfera Ebbasta", "Ernia", "Drake", "Dua Lipa", "Marracash", "Rkomi", "Lazza"
         );
 
         artistsToSave.forEach(this::saveArtistData);
@@ -80,9 +80,7 @@ public class DeezerDataService {
                 // Save artist to the repository if not already present
                 Artist savedArtist = artistRepository.findById(artist.getId()).orElse(null);
                 if (savedArtist == null) {
-                    artistRepository.save(artist);
-                } else {
-                    artist = savedArtist;
+                    savedArtist = artistRepository.save(artist);
                 }
 
                 // Parsing the Album
@@ -94,17 +92,18 @@ public class DeezerDataService {
                 album.setCoverBig(albumNode.path("cover_big").asText());
                 album.setTracklist(albumNode.path("tracklist").asText());
 
+                // Set the artist to the album
+                album.setArtist(savedArtist);
+
                 // Save album to the repository if not already present
                 Album savedAlbum = albumRepository.findById(album.getId()).orElse(null);
                 if (savedAlbum == null) {
-                    albumRepository.save(album);
-                } else {
-                    album = savedAlbum;
+                    savedAlbum = albumRepository.save(album);
                 }
 
                 // Associate the track with artist and album
-                track.setArtist(artist);
-                track.setAlbum(album);
+                track.setArtist(savedArtist);
+                track.setAlbum(savedAlbum);
 
                 // Save track to the repository if not already present
                 Track savedTrack = trackRepository.findById(track.getId()).orElse(null);
