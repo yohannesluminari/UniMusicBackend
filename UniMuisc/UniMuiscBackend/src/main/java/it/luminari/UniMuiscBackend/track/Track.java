@@ -2,8 +2,11 @@ package it.luminari.UniMuiscBackend.track;
 
 import it.luminari.UniMuiscBackend.album.Album;
 import it.luminari.UniMuiscBackend.artist.Artist;
+import it.luminari.UniMuiscBackend.user.User;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.Set;
 
 @Entity
 @Data
@@ -49,4 +52,6 @@ public class Track {
     @ManyToOne
     private Album album;
 
+    @ManyToMany(mappedBy = "favouriteTracks")
+    private Set<User> likedByUsers;
 }

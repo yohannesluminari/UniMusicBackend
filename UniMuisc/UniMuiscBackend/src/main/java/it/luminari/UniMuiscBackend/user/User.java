@@ -2,6 +2,7 @@ package it.luminari.UniMuiscBackend.user;
 
 import it.luminari.UniMuiscBackend.item.Item;
 import it.luminari.UniMuiscBackend.post.Post;
+import it.luminari.UniMuiscBackend.track.Track;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +10,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -43,4 +45,12 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Item> items;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_favourite_tracks",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "track_id")
+    )
+    private Set<Track> favouriteTracks;
 }

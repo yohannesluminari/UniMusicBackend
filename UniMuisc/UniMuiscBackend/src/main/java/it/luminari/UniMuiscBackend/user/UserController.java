@@ -1,10 +1,12 @@
 package it.luminari.UniMuiscBackend.user;
 
+import it.luminari.UniMuiscBackend.track.Track;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/users")
@@ -36,5 +38,22 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id){
         return ResponseEntity.ok(userService.delete(id));
+    }
+
+
+    // FAVOURITE SONGS
+    @GetMapping("/{userId}/favourite-tracks")
+    public Set<Track> getFavouriteTracks(@PathVariable Long userId) {
+        return userService.getFavouriteTracks(userId);
+    }
+
+    @PostMapping("/{userId}/favourite-tracks/{trackId}")
+    public void likeTrack(@PathVariable Long userId, @PathVariable Long trackId) {
+        userService.likeTrack(userId, trackId);
+    }
+
+    @DeleteMapping("/{userId}/favourite-tracks/{trackId}")
+    public void unlikeTrack(@PathVariable Long userId, @PathVariable Long trackId) {
+        userService.unlikeTrack(userId, trackId);
     }
 }
