@@ -16,15 +16,8 @@ public class Track {
     @Id
     private Long id;
 
-    private boolean readable;
-
     private String title;
 
-    @Column(name = "title_short")
-    private String titleShort;
-
-    @Column(name = "title_version")
-    private String titleVersion;
 
     private String link;
 

@@ -58,10 +58,7 @@ public class DeezerDataService {
                 // Parsing the Track
                 Track track = new Track();
                 track.setId(trackNode.path("id").asLong());
-                track.setReadable(trackNode.path("readable").asBoolean());
                 track.setTitle(trackNode.path("title").asText());
-                track.setTitleShort(trackNode.path("title_short").asText());
-                track.setTitleVersion(trackNode.path("title_version").asText(""));
                 track.setLink(trackNode.path("link").asText());
                 track.setDuration(trackNode.path("duration").asInt());
                 track.setRank(trackNode.path("rank").asLong());
