@@ -16,11 +16,7 @@ public class Artist {
     private String name;
     private String link;
     private String picture;
-    private String pictureSmall;
-    private String pictureMedium;
     private String pictureBig;
-    private String pictureXl;
     private String tracklist;
 
-    // getters and setters, constructors
 }

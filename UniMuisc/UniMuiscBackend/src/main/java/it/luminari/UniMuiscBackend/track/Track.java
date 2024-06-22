@@ -43,9 +43,6 @@ public class Track {
 
     private String preview;
 
-    @Column(name = "md5_image")
-    private String md5Image;
-
     @ManyToOne
     private Artist artist;
 

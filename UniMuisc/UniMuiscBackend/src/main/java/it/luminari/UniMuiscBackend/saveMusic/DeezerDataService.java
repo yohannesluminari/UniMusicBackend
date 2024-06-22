@@ -69,7 +69,6 @@ public class DeezerDataService {
                 track.setExplicitContentLyrics(trackNode.path("explicit_content_lyrics").asInt());
                 track.setExplicitContentCover(trackNode.path("explicit_content_cover").asInt());
                 track.setPreview(trackNode.path("preview").asText());
-                track.setMd5Image(trackNode.path("md5_image").asText());
 
                 // Parsing the Artist
                 JsonNode artistNode = trackNode.path("artist");
@@ -78,10 +77,7 @@ public class DeezerDataService {
                 artist.setName(artistNode.path("name").asText());
                 artist.setLink(artistNode.path("link").asText());
                 artist.setPicture(artistNode.path("picture").asText());
-                artist.setPictureSmall(artistNode.path("picture_small").asText());
-                artist.setPictureMedium(artistNode.path("picture_medium").asText());
                 artist.setPictureBig(artistNode.path("picture_big").asText());
-                artist.setPictureXl(artistNode.path("picture_xl").asText());
                 artist.setTracklist(artistNode.path("tracklist").asText());
 
                 // Save artist to the repository if not already present
@@ -98,11 +94,7 @@ public class DeezerDataService {
                 album.setId(albumNode.path("id").asLong());
                 album.setTitle(albumNode.path("title").asText());
                 album.setCover(albumNode.path("cover").asText());
-                album.setCoverSmall(albumNode.path("cover_small").asText());
-                album.setCoverMedium(albumNode.path("cover_medium").asText());
                 album.setCoverBig(albumNode.path("cover_big").asText());
-                album.setCoverXl(albumNode.path("cover_xl").asText());
-                album.setMd5Image(albumNode.path("md5_image").asText());
                 album.setTracklist(albumNode.path("tracklist").asText());
 
                 // Save album to the repository if not already present
