@@ -39,8 +39,12 @@ public class DeezerDataService {
 
     @Transactional
     public void fetchAndSaveData() {
+
         List<String> artistsToSave = Arrays.asList(
-                "Nayt", "Tedua", "Sfera Ebbasta", "Ernia", "Marracash", "Rkomi", "Lazza","Guè", "Shiva","Sick Luke"
+                "Nayt", "Luchè", "Mara Sattei", "Shiva", "Lazza", "Vegas Jones", "Frah Quintale","Franco126", "Ketama126","Sick Luke", "Guè", "Baby Gang",
+                "Sfera Ebbasta", "Capo Plaza", "Rkomi", "Tedua", "Rose Villain", "Ernia", "Tony Effe", "Massimo Pericolo", "Geolier","Madame", "MACE", "Kid Yugi",
+                 "Blanco","Artie 5ive", "Tony Boy","Gemello","Mecna", "Diss Gacha","Bresh"
+          //  "Side Baby", "Night Skinny","CoCo","Jake La Furia","leon Faun","Fabri Fibra", "Izi","Venerus","Salmo"
         );
 
         artistsToSave.forEach(this::saveArtistData);
