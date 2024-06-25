@@ -32,12 +32,7 @@ public class UserRunner implements ApplicationRunner {
             );
 
             users.forEach(request -> {
-                User user = new User();
-                user.setUsername(request.getUsername());
-                user.setPassword(request.getPassword());
-                user.setEmail(request.getEmail());
-                user.setAvatar(request.getAvatar());
-                userRepository.save(user);
+                userService.register(request); // Utilizza il UserService per registrare gli utenti
             });
 
             System.out.println("--- Users inserted ---");

@@ -22,8 +22,9 @@ public class UserService {
     @Autowired
     private TrackRepository trackRepository;
 
-     @Autowired
-     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     @Autowired
     private JWTTools jwtTools;
@@ -44,10 +45,13 @@ public class UserService {
 
         userRepository.save(user);
 
+        // Creazione della risposta senza includere la password
         Response response = new Response();
-        BeanUtils.copyProperties(user, response);
+        BeanUtils.copyProperties(user, response, "password"); // Escludi completamente la password
+
         return response;
     }
+
 
     public String login(Request request) {
         User user = userRepository.findByUsername(request.getUsername())
@@ -86,6 +90,9 @@ public class UserService {
     public Response create(Request request){
         User entity = new User();
         BeanUtils.copyProperties(request, entity);
+
+        // Encode the password before saving
+        entity.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Response response = new Response();
         BeanUtils.copyProperties(entity, response);
