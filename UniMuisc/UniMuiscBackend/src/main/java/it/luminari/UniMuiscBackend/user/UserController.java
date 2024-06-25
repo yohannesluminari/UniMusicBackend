@@ -1,7 +1,10 @@
 package it.luminari.UniMuiscBackend.user;
 
 import it.luminari.UniMuiscBackend.track.Track;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,43 +20,81 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Response> findById(@PathVariable Long id){
-        return ResponseEntity.ok(userService.findById(id));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<UserResponsePrj>> findAll(){
-        return ResponseEntity.ok(userService.findAll());
+        try {
+            Response response = userService.findById(id);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            Response errorResponse = new Response();
+            errorResponse.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
     }
 
     @PostMapping
-    public ResponseEntity<Response> create(@RequestBody Request request){
-        return ResponseEntity.ok(userService.create(request));
+    public ResponseEntity<Response> create(@Valid @RequestBody Request request){
+        try {
+            Response response = userService.create(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            Response errorResponse = new Response();
+            errorResponse.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Response> modify(@PathVariable Long id, @RequestBody Request request){
-        return ResponseEntity.ok(userService.modify(id, request));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id){
-        return ResponseEntity.ok(userService.delete(id));
-    }
-
-
-    // FAVOURITE SONGS
-    @GetMapping("/{userId}/favourite-tracks")
-    public Set<Track> getFavouriteTracks(@PathVariable Long userId) {
-        return userService.getFavouriteTracks(userId);
+        try {
+            Response response = userService.modify(id, request);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            Response errorResponse = new Response();
+            errorResponse.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
     }
 
     @PostMapping("/{userId}/favourite-tracks/{trackId}")
-    public void likeTrack(@PathVariable Long userId, @PathVariable Long trackId) {
-        userService.likeTrack(userId, trackId);
+    public ResponseEntity<Response> likeTrack(@PathVariable Long userId, @PathVariable Long trackId) {
+        try {
+            userService.likeTrack(userId, trackId);
+            Response response = new Response();
+            response.setMessage("Track liked");
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            Response errorResponse = new Response();
+            errorResponse.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
     }
 
     @DeleteMapping("/{userId}/favourite-tracks/{trackId}")
-    public void unlikeTrack(@PathVariable Long userId, @PathVariable Long trackId) {
-        userService.unlikeTrack(userId, trackId);
+    public ResponseEntity<Response> unlikeTrack(@PathVariable Long userId, @PathVariable Long trackId) {
+        try {
+            userService.unlikeTrack(userId, trackId);
+            Response response = new Response();
+            response.setMessage("Track unliked");
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            Response errorResponse = new Response();
+            errorResponse.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
     }
+
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Response> handleIllegalArgumentException(IllegalArgumentException ex) {
+        Response response = new Response();
+        response.setMessage(ex.getMessage());
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Response> handleEntityNotFoundException(EntityNotFoundException ex) {
+        Response response = new Response();
+        response.setMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
 }
