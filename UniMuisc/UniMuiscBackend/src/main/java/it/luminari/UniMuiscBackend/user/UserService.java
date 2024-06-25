@@ -1,13 +1,16 @@
 package it.luminari.UniMuiscBackend.user;
 
+import it.luminari.UniMuiscBackend.security.JWTTools;
 import it.luminari.UniMuiscBackend.track.Track;
 import it.luminari.UniMuiscBackend.track.TrackRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -18,6 +21,55 @@ public class UserService {
 
     @Autowired
     private TrackRepository trackRepository;
+
+     @Autowired
+     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JWTTools jwtTools;
+
+
+
+    public Response register(Request request) {
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("Username already taken");
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Email already in use");
+        }
+
+        User user = new User();
+        BeanUtils.copyProperties(request, user);
+        user.setPassword(passwordEncoder.encode(request.getPassword())); // Encode the password
+
+        userRepository.save(user);
+
+        Response response = new Response();
+        BeanUtils.copyProperties(user, response);
+        return response;
+    }
+
+    public String login(Request request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+
+        return jwtTools.createToken(user);
+    }
+
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
+    }
+
+
+
+
+
+
+
 
     public List<UserResponsePrj> findAll() {
         return userRepository.findAllBy();
