@@ -187,4 +187,16 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         return user.getFavouriteTracks();
     }
+
+
+    public boolean usernameOrEmailExists(String username, String email) {
+        // Verifica se esiste un utente con lo stesso username
+        boolean usernameExists = userRepository.existsByUsername(username);
+        // Verifica se esiste un utente con la stessa email
+        boolean emailExists = userRepository.existsByEmail(email);
+
+        // Restituisce true se esiste un utente con lo stesso username o email
+        return usernameExists || emailExists;
+    }
+
 }

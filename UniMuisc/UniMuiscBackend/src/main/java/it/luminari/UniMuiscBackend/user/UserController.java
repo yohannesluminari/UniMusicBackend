@@ -30,9 +30,18 @@ public class UserController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<List<UserResponsePrj>> findAll(){
+        List<UserResponsePrj> users = userService.findAll();
+        return ResponseEntity.ok(users);
+    }
+
     @PostMapping
     public ResponseEntity<Response> create(@Valid @RequestBody Request request){
         try {
+            if (userService.usernameOrEmailExists(request.getUsername(), request.getEmail())) {
+                throw new IllegalArgumentException("Username or email already exists");
+            }
             Response response = userService.create(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
@@ -52,6 +61,23 @@ public class UserController {
             errorResponse.setMessage(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable Long id){
+        try {
+            String message = userService.delete(id);
+            return ResponseEntity.ok(message);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    // FAVOURITE SONGS
+    @GetMapping("/{userId}/favourite-tracks")
+    public ResponseEntity<Set<Track>> getFavouriteTracks(@PathVariable Long userId) {
+        Set<Track> favouriteTracks = userService.getFavouriteTracks(userId);
+        return ResponseEntity.ok(favouriteTracks);
     }
 
     @PostMapping("/{userId}/favourite-tracks/{trackId}")
@@ -82,7 +108,6 @@ public class UserController {
         }
     }
 
-
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Response> handleIllegalArgumentException(IllegalArgumentException ex) {
         Response response = new Response();
@@ -96,5 +121,4 @@ public class UserController {
         response.setMessage(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-
 }
