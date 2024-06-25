@@ -1,5 +1,7 @@
 package it.luminari.UniMuiscBackend.user;
 
+import it.luminari.UniMuiscBackend.item.ItemRunner;
+import it.luminari.UniMuiscBackend.post.PostRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -19,6 +21,12 @@ public class UserRunner implements ApplicationRunner {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private PostRunner postRunner;
+
+    @Autowired
+    private ItemRunner itemRunner;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         if (userRepository.count() == 0) {
@@ -36,6 +44,10 @@ public class UserRunner implements ApplicationRunner {
             });
 
             System.out.println("--- Users inserted ---");
+
+            // Dopo aver registrato gli utenti, esegui i runner successivi
+            postRunner.run(args);
+            itemRunner.run(args);
         } else {
             System.out.println("--- Users already inserted ---");
         }
