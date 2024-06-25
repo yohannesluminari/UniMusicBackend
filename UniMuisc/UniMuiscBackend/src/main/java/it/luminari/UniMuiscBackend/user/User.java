@@ -24,7 +24,7 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, unique = true)
     @NotBlank(message = "Username is mandatory and can't be empty")
     @Size(max = 50, message = "Username must be less than 50 characters")
     private String username;
@@ -34,7 +34,7 @@ public class User implements UserDetails {
     @Size(max = 100, message = "Password must be less than 100 characters")
     private String password;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 100, unique = true)
     @NotBlank(message = "Email is mandatory")
     @Email(message = "Email should be valid")
     @Size(max = 100, message = "Email must be less than 100 characters")
