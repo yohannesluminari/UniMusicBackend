@@ -39,12 +39,11 @@ public class UserController {
     @PostMapping
     public ResponseEntity<Response> create(@Valid @RequestBody Request request){
         try {
-            if (userService.usernameOrEmailExists(request.getUsername(), request.getEmail())) {
-                throw new IllegalArgumentException("Username or email already exists");
-            }
+            // Creazione utente
             Response response = userService.create(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
+            // Cattura l'eccezione e restituisci un messaggio di errore dettagliato
             Response errorResponse = new Response();
             errorResponse.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(errorResponse);

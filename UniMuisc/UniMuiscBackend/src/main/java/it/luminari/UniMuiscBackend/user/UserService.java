@@ -40,16 +40,20 @@ public class UserService {
 
 
     public Response register(Request request) {
+        // Verifica se il nome utente esiste già
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Username already taken");
         }
+
+        // Verifica se l'email esiste già
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Email already in use");
         }
 
+        // Procedi con la creazione dell'utente se username ed email sono disponibili
         User user = new User();
         BeanUtils.copyProperties(request, user);
-        user.setPassword(passwordEncoder.encode(request.getPassword())); // Encode the password
+        user.setPassword(passwordEncoder.encode(request.getPassword())); // Codifica la password
 
         userRepository.save(user);
 
@@ -64,6 +68,7 @@ public class UserService {
         BeanUtils.copyProperties(user, response);
         return response;
     }
+
 
     private void sendRegistrationConfirmationEmail(User user) {
         SimpleMailMessage message = new SimpleMailMessage();
@@ -125,11 +130,22 @@ public class UserService {
         return response;
     }
 
-    public Response create(Request request){
+    public Response create(Request request) {
+        // Verifica se il nome utente esiste già
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("Username already taken");
+        }
+
+        // Verifica se l'email esiste già
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Email already in use");
+        }
+
+        // Se l'username e l'email sono disponibili, procedi con la creazione dell'utente
         User entity = new User();
         BeanUtils.copyProperties(request, entity);
 
-        // Encode the password before saving
+        // Codifica la password prima di salvarla
         entity.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Response response = new Response();
@@ -137,6 +153,7 @@ public class UserService {
         userRepository.save(entity);
         return response;
     }
+
 
     public Response modify(Long id, Request request){
         User entity = userRepository.findById(id)
