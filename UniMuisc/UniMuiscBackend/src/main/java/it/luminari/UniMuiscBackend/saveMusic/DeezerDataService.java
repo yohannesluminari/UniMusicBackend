@@ -7,23 +7,22 @@ import it.luminari.UniMuiscBackend.artist.ArtistRepository;
 import it.luminari.UniMuiscBackend.track.Track;
 import it.luminari.UniMuiscBackend.track.TrackRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @Service
 public class DeezerDataService {
 
-    private static final String API_URL = "https://striveschool-api.herokuapp.com/api/deezer/search?q=";
+    private static final String API_ARTIST_URL = "https://api.deezer.com/artist/";
+    private static final String API_ALBUM_URL = "https://api.deezer.com/album/";
 
     @Autowired
     private RestTemplate restTemplate;
@@ -38,51 +37,92 @@ public class DeezerDataService {
     private TrackRepository trackRepository;
 
     @Transactional
-    public void fetchAndSaveData() {
-
-        List<String> artistsToSave = Arrays.asList(
-                "Nayt", "Luchè", "Mara Sattei", "Shiva", "Lazza", "Vegas Jones", "Frah Quintale","Franco126", "Ketama126","Sick Luke", "Guè", "Baby Gang",
-                "Sfera Ebbasta", "Capo Plaza", "Rkomi", "Tedua", "Rose Villain", "Ernia", "Tony Effe", "Massimo Pericolo", "Geolier","Madame", "MACE", "Kid Yugi",
-                 "Blanco","Artie 5ive", "Tony Boy","Gemello","Mecna", "Diss Gacha","Bresh"
-          //  "Side Baby", "Night Skinny","CoCo","Jake La Furia","leon Faun","Fabri Fibra", "Izi","Venerus","Salmo"
-        );
-
-        artistsToSave.forEach(this::saveArtistData);
+    public void fetchAndSaveData(Long artistId) {
+        saveArtistById(artistId);
+        saveAlbumsById(artistId);
+        saveTracksById(artistId);
     }
 
-    private void saveArtistData(String artistName) {
-        String url = API_URL + artistName.replace(" ", "%20");
+    private void saveArtistById(Long artistId) {
+        String artistUrl = API_ARTIST_URL + artistId;
 
         try {
-            String jsonResponse = restTemplate.getForObject(url, String.class);
+            URI uri = new URI(artistUrl);
+            String artistResponse = restTemplate.getForObject(uri, String.class);
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode rootNode = mapper.readTree(jsonResponse);
-            JsonNode dataNode = rootNode.path("data");
-
-            for (JsonNode trackNode : dataNode) {
-                saveTrack(trackNode);
-            }
-        } catch (HttpServerErrorException e) {
-            HttpStatus statusCode = (HttpStatus) e.getStatusCode();
-            String responseBody = e.getResponseBodyAsString();
-            System.err.println("HTTP Error: " + statusCode + ", Response: " + responseBody);
-            // Potresti anche loggare l'errore con un sistema di logging
-            // logger.error("HTTP Error: " + statusCode + ", Response: " + responseBody, e);
-        } catch (IOException e) {
-            // Handle IOException (e.g., network issues, JSON parsing errors)
+            JsonNode artistNode = mapper.readTree(artistResponse);
+            saveArtist(artistNode);
+        } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
-            // Potresti anche loggare l'errore con un sistema di logging
-            // logger.error("IOException occurred", e);
-        } catch (Exception e) {
-            // Handle any other unexpected exceptions
-            e.printStackTrace();
-            // Potresti anche loggare l'errore con un sistema di logging
-            // logger.error("Unexpected exception occurred", e);
+            // Handle exception accordingly
         }
     }
 
+    private void saveAlbumsById(Long artistId) {
+        String albumsUrl = API_ARTIST_URL + artistId + "/albums";
 
-    private void saveTrack(JsonNode trackNode) {
+        try {
+            URI uri = new URI(albumsUrl);
+            String albumsResponse = restTemplate.getForObject(uri, String.class);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode albumsNode = mapper.readTree(albumsResponse);
+
+            for (JsonNode albumNode : albumsNode.path("data")) {
+                saveAlbum(albumNode, artistId);
+            }
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+            // Handle exception accordingly
+        }
+    }
+
+    private void saveTracksById(Long artistId) {
+        String tracksUrl = API_ARTIST_URL + artistId + "/top";
+
+        try {
+            URI uri = new URI(tracksUrl);
+            String tracksResponse = restTemplate.getForObject(uri, String.class);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode tracksNode = mapper.readTree(tracksResponse);
+
+            for (JsonNode trackNode : tracksNode.path("data")) {
+                saveTrack(trackNode, artistId);
+            }
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+            // Handle exception accordingly
+        }
+    }
+
+    private void saveArtist(JsonNode artistNode) {
+        Artist artist = new Artist();
+        artist.setId(artistNode.path("id").asLong());
+        artist.setName(artistNode.path("name").asText());
+        artist.setLink(artistNode.path("link").asText());
+        artist.setPicture(artistNode.path("picture").asText());
+        artist.setPictureBig(artistNode.path("picture_big").asText());
+        artist.setTracklist(artistNode.path("tracklist").asText());
+
+        artistRepository.save(artist);
+    }
+
+    private void saveAlbum(JsonNode albumNode, Long artistId) {
+        Album album = new Album();
+        album.setId(albumNode.path("id").asLong());
+        album.setTitle(albumNode.path("title").asText());
+        album.setLink(albumNode.path("link").asText());
+        album.setCover(albumNode.path("cover").asText());
+        album.setCoverBig(albumNode.path("cover_big").asText());
+        album.setReleaseDate(albumNode.path("release_date").asText());
+
+        // Set artist
+        Artist artist = artistRepository.findById(artistId).orElseThrow(() -> new RuntimeException("Artist not found"));
+        album.setArtist(artist);
+
+        albumRepository.save(album);
+    }
+
+    private void saveTrack(JsonNode trackNode, Long artistId) {
         Track track = new Track();
         track.setId(trackNode.path("id").asLong());
         track.setTitle(trackNode.path("title").asText());
@@ -94,50 +134,37 @@ public class DeezerDataService {
         track.setExplicitContentCover(trackNode.path("explicit_content_cover").asInt());
         track.setPreview(trackNode.path("preview").asText());
 
-        // Parsing the Artist
-        JsonNode artistNode = trackNode.path("artist");
-        Artist artist = saveArtist(artistNode);
-
-        // Parsing the Album
         JsonNode albumNode = trackNode.path("album");
-        Album album = saveAlbum(albumNode, artist);
+        if (!albumNode.isNull() && !albumNode.isMissingNode()) {
+            Long albumId = albumNode.path("id").asLong();
 
-        // Associate the track with artist and album
-        track.setArtist(artist);
-        track.setAlbum(album);
+            // Verifica se l'album esiste già nel database, altrimenti crea un nuovo album
+            Album album = albumRepository.findById(albumId).orElseGet(() -> {
+                Album newAlbum = new Album();
+                newAlbum.setId(albumId);
+                newAlbum.setTitle(albumNode.path("title").asText());
+                newAlbum.setCover(albumNode.path("cover").asText());
+                newAlbum.setCoverBig(albumNode.path("cover_big").asText());
+                newAlbum.setTracklist(albumNode.path("tracklist").asText());
+                newAlbum.setLink(albumNode.path("link").asText());
+                newAlbum.setReleaseDate(albumNode.path("release_date").asText());
+                return albumRepository.save(newAlbum);
+            });
 
-        // Save track to the repository if not already present
-        Track savedTrack = trackRepository.findById(track.getId()).orElse(null);
-        if (savedTrack == null) {
+            // Recupera l'artista dal repository
+            Artist artist = artistRepository.findById(artistId)
+                    .orElseThrow(() -> new RuntimeException("Artist not found with id: " + artistId));
+
+            // Imposta l'album e l'artista per la traccia
+            track.setArtist(artist);
+            track.setAlbum(album);
+
+            // Salva la traccia nel repository
             trackRepository.save(track);
+        } else {
+            throw new RuntimeException("Album information not found in track data");
         }
     }
 
-    private Artist saveArtist(JsonNode artistNode) {
-        Artist artist = new Artist();
-        artist.setId(artistNode.path("id").asLong());
-        artist.setName(artistNode.path("name").asText());
-        artist.setLink(artistNode.path("link").asText());
-        artist.setPicture(artistNode.path("picture").asText());
-        artist.setPictureBig(artistNode.path("picture_big").asText());
-        artist.setTracklist(artistNode.path("tracklist").asText());
 
-        // Save artist to the repository if not already present
-        return artistRepository.findById(artist.getId()).orElseGet(() -> artistRepository.save(artist));
-    }
-
-    private Album saveAlbum(JsonNode albumNode, Artist artist) {
-        Album album = new Album();
-        album.setId(albumNode.path("id").asLong());
-        album.setTitle(albumNode.path("title").asText());
-        album.setCover(albumNode.path("cover").asText());
-        album.setCoverBig(albumNode.path("cover_big").asText());
-        album.setTracklist(albumNode.path("tracklist").asText());
-
-        // Set the artist to the album
-        album.setArtist(artist);
-
-        // Save album to the repository if not already present
-        return albumRepository.findById(album.getId()).orElseGet(() -> albumRepository.save(album));
-    }
 }

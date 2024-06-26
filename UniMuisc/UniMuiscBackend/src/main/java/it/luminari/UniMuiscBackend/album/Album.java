@@ -17,6 +17,9 @@ public class Album {
     private String coverBig;
     private String tracklist;
 
+    private String link;
+    private String releaseDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "artist_id") // Nome della colonna che collega l'album all'artista
     private Artist artist;
