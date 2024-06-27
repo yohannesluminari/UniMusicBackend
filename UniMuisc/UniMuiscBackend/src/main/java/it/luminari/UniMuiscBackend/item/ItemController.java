@@ -51,6 +51,7 @@ public class ItemController {
         return ResponseEntity.ok(itemService.updateAvailability(id, status));
     }
 
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteItem(@PathVariable Long id) {
         return ResponseEntity.ok(itemService.delete(id));
