@@ -10,25 +10,29 @@ import it.luminari.UniMuiscBackend.user.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Component
 public class JWTTools {
 
     @Value("${spring.application.jwt.secret}")
-    private String secret;
+    private String secret; // This should be removed as it's not secure
 
     @Value("${spring.application.jwt.expiration-ms}")
     private long duration;
 
-    // JWT token creation
+    // Use a secure key instead of String secret
+    private final SecretKey key = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256);
 
+    // JWT token creation
     public String createToken(User user) {
-        return Jwts.builder().issuedAt(new Date(System.currentTimeMillis())).
-                expiration(new Date(System.currentTimeMillis() + duration)).
-                subject(String.valueOf(user.getId())).
-                signWith(Keys.hmacShaKeyFor(secret.getBytes())).
-                compact();
+        return Jwts.builder()
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + duration))
+                .setSubject(String.valueOf(user.getId()))
+                .signWith(key)
+                .compact();
     }
 
 
