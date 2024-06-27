@@ -32,7 +32,7 @@ public class ItemRunner implements ApplicationRunner {
             List<ItemRequest> items = Arrays.asList(
                     new ItemRequest("Guitar", "A high-quality acoustic guitar.", new BigDecimal("299.99"), 1L, "available", "guitar.jpg"),
                     new ItemRequest("Drum Set", "A complete drum set for beginners.", new BigDecimal("499.99"), 2L, "available", "drum_set.jpg"),
-                    new ItemRequest("Keyboard", "A portable keyboard with 61 keys.", new BigDecimal("199.99"), 3L, "available", "keyboard.jpg")
+                    new ItemRequest("Keyboard", "A portable keyboard with 61 keys.", new BigDecimal("199.99"), 1L, "available", "keyboard.jpg")
             );
 
             // Per ogni item nella lista, crea l'item utilizzando l'ItemService

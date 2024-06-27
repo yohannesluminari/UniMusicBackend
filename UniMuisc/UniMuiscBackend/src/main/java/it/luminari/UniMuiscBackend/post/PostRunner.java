@@ -31,7 +31,7 @@ public class PostRunner implements ApplicationRunner {
             List<PostRequest> posts = Arrays.asList(
                     new PostRequest("First Post", "Content of the first post", 1L, 4.5, "image1.jpg"),
                     new PostRequest("Second Post", "Content of the second post", 2L, 3.0, "image2.jpg"),
-                    new PostRequest("Third Post", "Content of the third post", 3L, 5.0, "image3.jpg")
+                    new PostRequest("Third Post", "Content of the third post", 1L, 5.0, "image3.jpg")
             );
 
             // Per ogni post nella lista, crea il post utilizzando il PostService

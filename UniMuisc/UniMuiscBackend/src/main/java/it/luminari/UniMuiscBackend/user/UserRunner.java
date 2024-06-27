@@ -31,11 +31,7 @@ public class UserRunner implements ApplicationRunner {
         // Lista degli utenti da inserire
         List<Request> users = Arrays.asList(
                 new Request("user1", "password1", "user1@example.com", "avatar1.jpg"),
-                new Request("user2", "password2", "user2@example.com", "avatar2.jpg"),
-                new Request("user3", "password3", "user3@example.com", "avatar3.jpg"),
-                new Request("user4", "password4", "user4@example.com", "avatar4.jpg"),
-                new Request("user5", "password5", "user5@example.com", "avatar5.jpg"),
-                new Request("user6", "password6", "user6@example.com", "avatar6.jpg")
+                new Request("user2", "password2", "user2@example.com", "avatar2.jpg")
         );
 
         // Per ogni utente nella lista, verifica se l'email è valida e non esiste nel database

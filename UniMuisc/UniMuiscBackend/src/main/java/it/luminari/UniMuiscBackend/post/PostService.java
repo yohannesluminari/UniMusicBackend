@@ -35,8 +35,13 @@ public class PostService {
     }
 
     public PostResponse create(@Valid PostRequest postRequest) {
-        User user = userRepository.findById(postRequest.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException("User non trovato"));
+        Long userId = postRequest.getUserId();
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID must not be null");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         Post post = new Post();
         BeanUtils.copyProperties(postRequest, post);
@@ -46,6 +51,8 @@ public class PostService {
         Post savedPost = postRepository.save(post);
         return mapToResponse(savedPost);
     }
+
+
 
     public PostResponse modify(Long id, PostRequest postRequest) {
         Post post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post non trovato"));
