@@ -39,7 +39,12 @@ public class ItemService {
     }
 
     public ItemResponse create(@Valid ItemRequest itemRequest) {
-        User user = userRepository.findById(itemRequest.getUserId())
+        Long userId = itemRequest.getUserId();
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID must not be null");
+        }
+
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         Item item = new Item();
@@ -52,28 +57,13 @@ public class ItemService {
     }
 
 
+
     public ItemResponse modify(Long id, ItemRequest itemRequest) {
         Item item = itemRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Item not found"));
 
         BeanUtils.copyProperties(itemRequest, item);
         item.setCreatedAt(LocalDateTime.now());
 
-        Item updatedItem = itemRepository.save(item);
-        return mapToResponse(updatedItem);
-    }
-
-    public String delete(Long id) {
-        if (!itemRepository.existsById(id)) {
-            throw new EntityNotFoundException("Item not found");
-        }
-
-        itemRepository.deleteById(id);
-        return "Item deleted";
-    }
-
-    public ItemResponse updateAvailability(Long id, String available) {
-        Item item = itemRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Item not found"));
-        item.setAvailable(available);
         Item updatedItem = itemRepository.save(item);
         return mapToResponse(updatedItem);
     }
@@ -90,5 +80,21 @@ public class ItemService {
         response.setCreatedAt(item.getCreatedAt().toString());
         response.setImage(item.getImage()); // Set image in the response
         return response;
+    }
+
+    public String delete(Long id) {
+        if (!itemRepository.existsById(id)) {
+            throw new EntityNotFoundException("Item not found");
+        }
+
+        itemRepository.deleteById(id);
+        return "Item deleted";
+    }
+
+    public ItemResponse updateAvailability(Long id, String available) {
+        Item item = itemRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Item not found"));
+        item.setAvailable(available);
+        Item updatedItem = itemRepository.save(item);
+        return mapToResponse(updatedItem);
     }
 }

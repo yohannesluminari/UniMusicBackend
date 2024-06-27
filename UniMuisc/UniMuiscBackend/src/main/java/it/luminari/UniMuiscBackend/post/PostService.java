@@ -52,7 +52,18 @@ public class PostService {
         return mapToResponse(savedPost);
     }
 
-
+    private PostResponse mapToResponse(Post post) {
+        PostResponse response = new PostResponse();
+        response.setId(post.getId());
+        response.setTitle(post.getTitle());
+        response.setContent(post.getContent());
+        response.setUserId(post.getUser().getId());
+        response.setUsername(post.getUser().getUsername());
+        response.setRating(post.getRating());
+        response.setCreatedAt(post.getCreatedAt().toString());
+        response.setImage(post.getImage()); // Set image in the response
+        return response;
+    }
 
     public PostResponse modify(Long id, PostRequest postRequest) {
         Post post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post non trovato"));
@@ -73,16 +84,5 @@ public class PostService {
         return "Post eliminato";
     }
 
-    private PostResponse mapToResponse(Post post) {
-        PostResponse response = new PostResponse();
-        response.setId(post.getId());
-        response.setTitle(post.getTitle());
-        response.setContent(post.getContent());
-        response.setUserId(post.getUser().getId());
-        response.setUsername(post.getUser().getUsername());
-        response.setRating(post.getRating());
-        response.setCreatedAt(post.getCreatedAt().toString());
-        response.setImage(post.getImage()); // Set image in the response
-        return response;
-    }
+
 }
