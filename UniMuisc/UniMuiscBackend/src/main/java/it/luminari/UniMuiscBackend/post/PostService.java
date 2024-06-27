@@ -52,6 +52,24 @@ public class PostService {
         return mapToResponse(savedPost);
     }
 
+
+    public PostResponse modify(Long id, PostRequest postRequest) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Post non trovato"));
+
+        // Aggiornare le proprietà dell'entità Post con i dati della PostRequest
+        post.setTitle(postRequest.getTitle());
+        post.setContent(postRequest.getContent());
+        // Aggiungere altri campi da aggiornare secondo necessità
+
+        // Salvare l'entità aggiornata nel repository
+        post.setCreatedAt(LocalDateTime.now()); // Opzionale, se si vuole aggiornare il timestamp
+        Post updatedPost = postRepository.save(post);
+
+        // Mappare l'entità aggiornata a PostResponse per la risposta
+        return mapToResponse(updatedPost);
+    }
+
     private PostResponse mapToResponse(Post post) {
         PostResponse response = new PostResponse();
         response.setId(post.getId());
@@ -63,16 +81,6 @@ public class PostService {
         response.setCreatedAt(post.getCreatedAt().toString());
         response.setImage(post.getImage()); // Set image in the response
         return response;
-    }
-
-    public PostResponse modify(Long id, PostRequest postRequest) {
-        Post post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post non trovato"));
-
-        BeanUtils.copyProperties(postRequest, post);
-        post.setCreatedAt(LocalDateTime.now());
-
-        Post updatedPost = postRepository.save(post);
-        return mapToResponse(updatedPost);
     }
 
     public String delete(Long id) {

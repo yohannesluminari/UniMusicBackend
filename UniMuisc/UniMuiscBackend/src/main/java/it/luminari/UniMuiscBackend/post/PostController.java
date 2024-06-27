@@ -1,5 +1,6 @@
 package it.luminari.UniMuiscBackend.post;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,14 +30,14 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostResponse> create(@RequestBody PostRequest postRequest) {
+    public ResponseEntity<PostResponse> create(@Valid @RequestBody PostRequest postRequest) {
         return ResponseEntity.ok(postService.create(postRequest));
     }
-
     @PutMapping("/{id}")
-    public ResponseEntity<PostResponse> modify(@PathVariable Long id, @RequestBody PostRequest postRequest) {
+    public ResponseEntity<PostResponse> modify(@PathVariable Long id, @Valid @RequestBody PostRequest postRequest) {
         return ResponseEntity.ok(postService.modify(id, postRequest));
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) {
