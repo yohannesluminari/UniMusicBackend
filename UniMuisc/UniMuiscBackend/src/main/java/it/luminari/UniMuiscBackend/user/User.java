@@ -1,5 +1,7 @@
 package it.luminari.UniMuiscBackend.user;
 
+import it.luminari.UniMuiscBackend.album.Album;
+import it.luminari.UniMuiscBackend.artist.Artist;
 import it.luminari.UniMuiscBackend.item.Item;
 import it.luminari.UniMuiscBackend.post.Post;
 import it.luminari.UniMuiscBackend.track.Track;
@@ -56,6 +58,16 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "track_id")
     )
     private Set<Track> favouriteTracks;
+
+    private int totalListeningTimeInMinutes;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Album mostListenedAlbum;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Artist mostListenedArtist;
+
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

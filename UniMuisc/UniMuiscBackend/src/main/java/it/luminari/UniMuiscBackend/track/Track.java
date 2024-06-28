@@ -44,4 +44,7 @@ public class Track {
 
     @ManyToMany(mappedBy = "favouriteTracks")
     private Set<User> likedByUsers;
+
+    @OneToMany(mappedBy = "track")
+    private Set<UserTrackInteraction> userInteractions;
 }

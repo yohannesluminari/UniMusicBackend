@@ -1,8 +1,13 @@
 package it.luminari.UniMuiscBackend.user;
 
+import it.luminari.UniMuiscBackend.album.Album;
+import it.luminari.UniMuiscBackend.artist.Artist;
 import it.luminari.UniMuiscBackend.security.JWTTools;
 import it.luminari.UniMuiscBackend.track.Track;
 import it.luminari.UniMuiscBackend.track.TrackRepository;
+import it.luminari.UniMuiscBackend.track.UserTrackInteraction;
+import it.luminari.UniMuiscBackend.track.UserTrackInteractionRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +33,9 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+
+    @Autowired
+    private UserTrackInteractionRepository userTrackInteractionRepository;
 
     @Autowired
     private JWTTools jwtTools;
@@ -216,4 +224,46 @@ public class UserService {
         return usernameExists || emailExists;
     }
 
+
+
+
+    // GESTIONE N ASCOLTI X AFFINITA
+    @Transactional
+    public void updateTrackListenCount(User user, Track track, int listenDuration) {
+        UserTrackInteraction interaction = userTrackInteractionRepository.findByUserAndTrack(user, track)
+                .orElseGet(() -> {
+                    UserTrackInteraction newInteraction = new UserTrackInteraction();
+                    newInteraction.setUser(user);
+                    newInteraction.setTrack(track);
+                    return newInteraction;
+                });
+
+        int listenCount = interaction.getListenCount();
+        listenCount++;
+        interaction.setListenCount(listenCount);
+        userTrackInteractionRepository.save(interaction);
+
+        // Check if user has listened to at least 80% of track duration
+        if (listenDuration >= 0.8 * track.getDuration()) {
+            // Update total listening time for user
+            user.setTotalListeningTimeInMinutes(user.getTotalListeningTimeInMinutes() + listenDuration);
+            userRepository.save(user);
+        }
+    }
+
+    @Transactional
+    public void updateAlbumListeningTime(User user, Album album, int albumDurationInMinutes) {
+        // Update total listening time for user
+        user.setTotalListeningTimeInMinutes(user.getTotalListeningTimeInMinutes() + albumDurationInMinutes);
+        user.setMostListenedAlbum(album);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateArtistListeningTime(User user, Artist artist, int artistDurationInMinutes) {
+        // Update total listening time for user
+        user.setTotalListeningTimeInMinutes(user.getTotalListeningTimeInMinutes() + artistDurationInMinutes);
+        user.setMostListenedArtist(artist);
+        userRepository.save(user);
+    }
 }
