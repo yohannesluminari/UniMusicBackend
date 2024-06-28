@@ -59,20 +59,23 @@ public class User implements UserDetails {
     )
     private Set<Track> favouriteTracks;
 
-    private int totalListeningTimeInMinutes;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Album mostListenedAlbum;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Artist mostListenedArtist;
-
-
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
     }
+
+
+    @Column(name = "total_listening_time_in_minutes")
+    private int totalListeningTimeInMinutes;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "most_listened_album_id")
+    private Album mostListenedAlbum;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "most_listened_artist_id")
+    private Artist mostListenedArtist;
+
 
     @Override
     public boolean isAccountNonExpired() {

@@ -1,6 +1,7 @@
 package it.luminari.UniMuiscBackend.user;
 
 import it.luminari.UniMuiscBackend.track.Track;
+import it.luminari.UniMuiscBackend.track.TrackRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TrackRepository trackRepository;
 
     @GetMapping("/{id}")
     public ResponseEntity<Response> findById(@PathVariable Long id){
@@ -120,4 +124,30 @@ public class UserController {
         response.setMessage(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
+
+    @PostMapping("/{userId}/update-track-listen-count/{trackId}")
+    public ResponseEntity<Response> updateTrackListenCount(
+            @PathVariable Long userId,
+            @PathVariable Long trackId,
+            @RequestParam int listenDuration
+    ) {
+        try {
+            User user = userService.getUserById(userId)
+                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
+            Track track = trackRepository.findById(trackId)
+                    .orElseThrow(() -> new EntityNotFoundException("Track not found"));
+
+            // Update user's track interaction and check for album and artist listening time
+            userService.updateTrackListenCount(user, track, listenDuration);
+
+            Response response = new Response();
+            response.setMessage("Track listen count updated successfully");
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            Response errorResponse = new Response();
+            errorResponse.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
+    }
+
 }

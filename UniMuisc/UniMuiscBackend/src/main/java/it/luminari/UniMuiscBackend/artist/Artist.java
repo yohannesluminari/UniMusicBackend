@@ -19,4 +19,6 @@ public class Artist {
     private String pictureBig;
     private String tracklist;
 
+    private int listeningTimeInMinutes;
+
 }

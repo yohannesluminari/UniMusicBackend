@@ -230,40 +230,32 @@ public class UserService {
     // GESTIONE N ASCOLTI X AFFINITA
     @Transactional
     public void updateTrackListenCount(User user, Track track, int listenDuration) {
-        UserTrackInteraction interaction = userTrackInteractionRepository.findByUserAndTrack(user, track)
-                .orElseGet(() -> {
-                    UserTrackInteraction newInteraction = new UserTrackInteraction();
-                    newInteraction.setUser(user);
-                    newInteraction.setTrack(track);
-                    return newInteraction;
-                });
+        // Existing code to update track listen count
 
-        int listenCount = interaction.getListenCount();
-        listenCount++;
-        interaction.setListenCount(listenCount);
-        userTrackInteractionRepository.save(interaction);
+        // Update total listening time for user
+        user.setTotalListeningTimeInMinutes(user.getTotalListeningTimeInMinutes() + listenDuration);
 
-        // Check if user has listened to at least 80% of track duration
-        if (listenDuration >= 0.8 * track.getDuration()) {
-            // Update total listening time for user
-            user.setTotalListeningTimeInMinutes(user.getTotalListeningTimeInMinutes() + listenDuration);
-            userRepository.save(user);
+        // Update most listened album and artist based on the track
+        Album trackAlbum = track.getAlbum();
+        Artist trackArtist = track.getArtist();
+
+        // Retrieve current most listened album and artist for user
+        Album mostListenedAlbum = user.getMostListenedAlbum();
+        Artist mostListenedArtist = user.getMostListenedArtist();
+
+        // Update most listened album if track's album has more listening time
+        if (mostListenedAlbum == null || trackAlbum.getListeningTimeInMinutes() > mostListenedAlbum.getListeningTimeInMinutes()) {
+            user.setMostListenedAlbum(trackAlbum);
         }
-    }
 
-    @Transactional
-    public void updateAlbumListeningTime(User user, Album album, int albumDurationInMinutes) {
-        // Update total listening time for user
-        user.setTotalListeningTimeInMinutes(user.getTotalListeningTimeInMinutes() + albumDurationInMinutes);
-        user.setMostListenedAlbum(album);
+        // Update most listened artist if track's artist has more listening time
+        if (mostListenedArtist == null || trackArtist.getListeningTimeInMinutes() > mostListenedArtist.getListeningTimeInMinutes()) {
+            user.setMostListenedArtist(trackArtist);
+        }
+
+        // Save user with updated most listened album and artist
         userRepository.save(user);
     }
 
-    @Transactional
-    public void updateArtistListeningTime(User user, Artist artist, int artistDurationInMinutes) {
-        // Update total listening time for user
-        user.setTotalListeningTimeInMinutes(user.getTotalListeningTimeInMinutes() + artistDurationInMinutes);
-        user.setMostListenedArtist(artist);
-        userRepository.save(user);
-    }
+
 }

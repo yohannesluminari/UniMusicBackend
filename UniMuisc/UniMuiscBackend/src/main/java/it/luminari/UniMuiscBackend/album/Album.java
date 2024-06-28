@@ -20,7 +20,12 @@ public class Album {
     private String link;
     private String releaseDate;
 
+    private int listeningTimeInMinutes;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "artist_id") // Nome della colonna che collega l'album all'artista
     private Artist artist;
+
+
+
 }
