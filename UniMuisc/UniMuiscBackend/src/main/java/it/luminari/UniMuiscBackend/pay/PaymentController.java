@@ -2,27 +2,45 @@ package it.luminari.UniMuiscBackend.pay;
 
 
 
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/payments")
+@RequestMapping("/api/payment")
 public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
 
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('USER')") // Permette solo agli utenti autenticati di creare pagamenti
-    public ResponseEntity<Payment> createPayment(@RequestParam Long itemId, @RequestParam Long buyerId) {
-        return ResponseEntity.ok(paymentService.createPayment(itemId, buyerId));
+    @Autowired
+    private OrderService orderService;
+
+    @PostMapping("/create-payment-intent")
+    public ResponseEntity<?> createPaymentIntent(@RequestBody PaymentIntentRequest request) {
+        try {
+            PaymentIntent paymentIntent = paymentService.createPaymentIntent(
+                    request.getPaymentMethodId(),
+                    Math.toIntExact(request.getAmount()),
+                    request.getCurrency()
+            );
+            return ResponseEntity.ok(paymentIntent);
+        } catch (StripeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    @PatchMapping("/{paymentId}/status")
-    @PreAuthorize("hasRole('ADMIN')") // Solo gli admin possono aggiornare lo stato dei pagamenti
-    public ResponseEntity<Payment> updatePaymentStatus(@PathVariable Long paymentId, @RequestParam PaymentStatus status) {
-        return ResponseEntity.ok(paymentService.updatePaymentStatus(paymentId, status));
+    @PostMapping("/confirm-order")
+    public ResponseEntity<?> confirmOrder(@RequestParam Long itemId, @RequestParam Long buyerId) {
+        try {
+            orderService.processOrder(itemId, buyerId);
+            return ResponseEntity.ok("Order confirmed successfully");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
+
 }

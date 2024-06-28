@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+### Spring Boot Application Properties ###
+# Exclude application.properties file to prevent sensitive information leakage
+/src/main/resources/application.properties

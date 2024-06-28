@@ -1,48 +1,34 @@
 package it.luminari.UniMuiscBackend.pay;
 
 
-import it.luminari.UniMuiscBackend.item.Item;
-import it.luminari.UniMuiscBackend.item.ItemRepository;
-import it.luminari.UniMuiscBackend.user.User;
-import it.luminari.UniMuiscBackend.user.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class PaymentService {
 
-    @Autowired
-    private PaymentRepository paymentRepository;
+    @Value("${stripe.api.key}")
+    private String stripeApiKey;
 
-    @Autowired
-    private ItemRepository itemRepository;
+    public PaymentIntent createPaymentIntent(String paymentMethodId, int amount, String currency) throws StripeException {
+        Stripe.apiKey = stripeApiKey;
 
-    @Autowired
-    private UserRepository userRepository;
+        Map<String, Object> params = new HashMap<>();
+        params.put("amount", amount);
+        params.put("currency", currency);
+        params.put("payment_method_types", Arrays.asList("card"));
+        params.put("payment_method", paymentMethodId);
+        params.put("confirm", true);
 
-    public Payment createPayment(Long itemId, Long buyerId) {
-        Item item = itemRepository.findById(itemId).orElseThrow(() -> new EntityNotFoundException("Item not found"));
-        User buyer = userRepository.findById(buyerId).orElseThrow(() -> new EntityNotFoundException("Buyer not found"));
-        User seller = item.getUser();
-
-        Payment payment = new Payment();
-        payment.setAmount(item.getPrice());
-        payment.setBuyer(buyer);
-        payment.setSeller(seller);
-        payment.setItem(item);
-        payment.setPaymentDate(LocalDateTime.now());
-        payment.setStatus(PaymentStatus.PENDING); // Usa `PaymentStatus.PENDING`
-
-        return paymentRepository.save(payment);
+        return PaymentIntent.create(params);
     }
 
-    public Payment updatePaymentStatus(Long paymentId, PaymentStatus status) {
-        Payment payment = paymentRepository.findById(paymentId).orElseThrow(() -> new EntityNotFoundException("Payment not found"));
-        payment.setStatus(status); // Usa l'Enum `PaymentStatus`
-        return paymentRepository.save(payment);
-    }
+    // Aggiungi altri metodi come il salvataggio delle informazioni del pagamento, gestione errori, etc.
 }
-

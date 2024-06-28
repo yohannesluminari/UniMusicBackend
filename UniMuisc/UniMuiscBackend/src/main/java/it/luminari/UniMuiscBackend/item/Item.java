@@ -44,4 +44,26 @@ public class Item {
 
     @Column(length = 255)
     private String image;
+
+    @ManyToOne
+    @JoinColumn(name = "buyer_id")
+    private User buyer; // L'utente che ha acquistato l'item
+
+    private boolean sold; // Campo per indicare se l'item è stato venduto
+
+    public void setSold(boolean sold) {
+        this.sold = sold;
+    }
+
+    public boolean isSold() {
+        return sold;
+    }
+
+    public User getBuyer() {
+        return buyer;
+    }
+
+    public void setBuyer(User buyer) {
+        this.buyer = buyer;
+    }
 }

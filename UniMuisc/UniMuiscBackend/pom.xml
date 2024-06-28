@@ -108,6 +108,16 @@
 			<version>24.1.0</version>
 			<scope>compile</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.stripe</groupId>
+			<artifactId>stripe-java</artifactId>
+			<version>21.13.0</version> <!-- Use the latest version available -->
+		</dependency>
+
+
+
+
 	</dependencies>
 
 	<build>
