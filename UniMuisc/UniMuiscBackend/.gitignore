@@ -37,4 +37,5 @@ build/
 # Exclude Spring Boot application properties
 #src/main/resources/application.properties
 
-
+# Exclude env properties
+env.properties
