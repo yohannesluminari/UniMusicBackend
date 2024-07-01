@@ -1,6 +1,5 @@
 package it.luminari.UniMuiscBackend.track;
 
-
 import it.luminari.UniMuiscBackend.user.User;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -21,5 +20,8 @@ public class UserTrackInteraction {
     private Track track;
 
     private int listenCount;
+
+    // New field to track total listening time for this user-track interaction
+    private int listeningTimeInSeconds; // Store listening time in seconds for better precision
 
 }

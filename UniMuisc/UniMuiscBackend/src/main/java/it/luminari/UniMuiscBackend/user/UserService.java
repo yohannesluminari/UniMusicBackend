@@ -1,6 +1,7 @@
 package it.luminari.UniMuiscBackend.user;
 
 import it.luminari.UniMuiscBackend.album.Album;
+import it.luminari.UniMuiscBackend.album.AlbumRepository;
 import it.luminari.UniMuiscBackend.artist.Artist;
 import it.luminari.UniMuiscBackend.security.JWTTools;
 import it.luminari.UniMuiscBackend.track.Track;
@@ -17,9 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -29,6 +30,7 @@ public class UserService {
 
     @Autowired
     private TrackRepository trackRepository;
+
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -230,32 +232,89 @@ public class UserService {
     // GESTIONE N ASCOLTI X AFFINITA
     @Transactional
     public void updateTrackListenCount(User user, Track track, int listenDuration) {
-        // Existing code to update track listen count
+        // Calculate listen duration in seconds
+        int listenDurationInSeconds = (listenDuration / 1000);
 
-        // Update total listening time for user
-        user.setTotalListeningTimeInMinutes(user.getTotalListeningTimeInMinutes() + listenDuration);
+        // Update or create UserTrackInteraction
+        UserTrackInteraction interaction = userTrackInteractionRepository
+                .findByUserAndTrack(user, track)
+                .orElse(new UserTrackInteraction());
+        interaction.setUser(user);
+        interaction.setTrack(track);
+        interaction.setListenCount(interaction.getListenCount() + 1);
+        interaction.setListeningTimeInSeconds(interaction.getListeningTimeInSeconds() + listenDurationInSeconds);
 
-        // Update most listened album and artist based on the track
-        Album trackAlbum = track.getAlbum();
-        Artist trackArtist = track.getArtist();
+        userTrackInteractionRepository.save(interaction);
 
-        // Retrieve current most listened album and artist for user
-        Album mostListenedAlbum = user.getMostListenedAlbum();
-        Artist mostListenedArtist = user.getMostListenedArtist();
+        // Update total listening time for the user
+        user.setTotalListeningTimeInMinutes(user.getTotalListeningTimeInMinutes() + listenDurationInSeconds / 60);
 
-        // Update most listened album if track's album has more listening time
-        if (mostListenedAlbum == null || trackAlbum.getListeningTimeInMinutes() > mostListenedAlbum.getListeningTimeInMinutes()) {
-            user.setMostListenedAlbum(trackAlbum);
-        }
+        // Update album listening time
+        Album album = track.getAlbum();
+        album.getUserListeningTimes().put(user,
+                album.getUserListeningTimes().getOrDefault(user, 0) + listenDurationInSeconds);
+        album.setListeningTimeInMinutes(album.getListeningTimeInMinutes() + listenDurationInSeconds / 60);
 
-        // Update most listened artist if track's artist has more listening time
-        if (mostListenedArtist == null || trackArtist.getListeningTimeInMinutes() > mostListenedArtist.getListeningTimeInMinutes()) {
-            user.setMostListenedArtist(trackArtist);
-        }
+        // Update artist listening time
+        Artist artist = track.getArtist();
+        artist.getUserListeningTimes().put(user,
+                artist.getUserListeningTimes().getOrDefault(user, 0) + listenDurationInSeconds);
+        artist.setListeningTimeInMinutes(artist.getListeningTimeInMinutes() + listenDurationInSeconds / 60);
 
-        // Save user with updated most listened album and artist
+        // Save updated album and artist
         userRepository.save(user);
     }
 
+    // Method to get the top tracks by listening time for a user
+    public List<Track> getUserTopTracks(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
+        return userTrackInteractionRepository.findByUser(user).stream()
+                .sorted(Comparator.comparingInt(UserTrackInteraction::getListeningTimeInSeconds).reversed())
+                .map(UserTrackInteraction::getTrack)
+                .collect(Collectors.toList());
+    }
+
+    // Method to get the top albums by listening time for a user
+    public List<Album> getUserTopAlbums(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // Aggregate listening times for each album
+        Map<Album, Integer> albumListeningTime = new HashMap<>();
+        for (UserTrackInteraction interaction : userTrackInteractionRepository.findByUser(user)) {
+            Track track = interaction.getTrack();
+            Album album = track.getAlbum();
+            int duration = interaction.getListeningTimeInSeconds();
+
+            albumListeningTime.put(album, albumListeningTime.getOrDefault(album, 0) + duration);
+        }
+
+        return albumListeningTime.entrySet().stream()
+                .sorted(Map.Entry.<Album, Integer>comparingByValue().reversed())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
+    // Method to get the top artists by listening time for a user
+    public List<Artist> getUserTopArtists(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // Aggregate listening times for each artist
+        Map<Artist, Integer> artistListeningTime = new HashMap<>();
+        for (UserTrackInteraction interaction : userTrackInteractionRepository.findByUser(user)) {
+            Track track = interaction.getTrack();
+            Artist artist = track.getArtist();
+            int duration = interaction.getListeningTimeInSeconds();
+
+            artistListeningTime.put(artist, artistListeningTime.getOrDefault(artist, 0) + duration);
+        }
+
+        return artistListeningTime.entrySet().stream()
+                .sorted(Map.Entry.<Artist, Integer>comparingByValue().reversed())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
 }
