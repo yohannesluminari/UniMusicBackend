@@ -34,5 +34,7 @@ build/
 
 
 ### Spring Boot Application Properties ###
-# Exclude application.properties file to prevent sensitive information leakage
-/src/main/resources/application.properties
+# Exclude Spring Boot application properties
+#src/main/resources/application.properties
+
+
