@@ -59,6 +59,12 @@ public class User implements UserDetails {
     )
     private Set<Track> favouriteTracks;
 
+    @ManyToMany(mappedBy = "likedByUsers")
+    private Set<Artist> likedArtists;
+
+    @ManyToMany(mappedBy = "likedByUsers")
+    private Set<Album> likedAlbums;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();

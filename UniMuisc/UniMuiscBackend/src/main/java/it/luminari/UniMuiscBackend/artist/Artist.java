@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Entity
 @Data
@@ -28,4 +30,14 @@ public class Artist {
     @MapKeyJoinColumn(name = "user_id")
     @Column(name = "listening_time_in_seconds")
     private Map<User, Integer> userListeningTimes = new HashMap<>();
+
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_liked_artists",
+            joinColumns = @JoinColumn(name = "artist_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> likedByUsers = new HashSet<>();
+
 }

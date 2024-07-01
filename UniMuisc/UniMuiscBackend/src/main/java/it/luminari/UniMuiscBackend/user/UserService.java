@@ -3,6 +3,7 @@ package it.luminari.UniMuiscBackend.user;
 import it.luminari.UniMuiscBackend.album.Album;
 import it.luminari.UniMuiscBackend.album.AlbumRepository;
 import it.luminari.UniMuiscBackend.artist.Artist;
+import it.luminari.UniMuiscBackend.artist.ArtistRepository;
 import it.luminari.UniMuiscBackend.security.JWTTools;
 import it.luminari.UniMuiscBackend.track.Track;
 import it.luminari.UniMuiscBackend.track.TrackRepository;
@@ -34,6 +35,12 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    ArtistRepository artistRepository;
+
+    @Autowired
+    AlbumRepository albumRepository;
 
 
     @Autowired
@@ -214,6 +221,51 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         return user.getFavouriteTracks();
     }
+
+
+    public void likeArtist(Long userId, Long artistId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Artist artist = artistRepository.findById(artistId)
+                .orElseThrow(() -> new EntityNotFoundException("Artist not found"));
+
+        user.getLikedArtists().add(artist);
+        userRepository.save(user);
+    }
+
+    public void unlikeArtist(Long userId, Long artistId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Artist artist = artistRepository.findById(artistId)
+                .orElseThrow(() -> new EntityNotFoundException("Artist not found"));
+
+        user.getLikedArtists().remove(artist);
+        userRepository.save(user);
+    }
+
+    public void likeAlbum(Long userId, Long albumId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new EntityNotFoundException("Album not found"));
+
+        user.getLikedAlbums().add(album);
+        userRepository.save(user);
+    }
+
+    public void unlikeAlbum(Long userId, Long albumId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new EntityNotFoundException("Album not found"));
+
+        user.getLikedAlbums().remove(album);
+        userRepository.save(user);
+    }
+
+
+
+
 
 
     public boolean usernameOrEmailExists(String username, String email) {
