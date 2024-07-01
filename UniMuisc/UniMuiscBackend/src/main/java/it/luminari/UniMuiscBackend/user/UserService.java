@@ -365,4 +365,29 @@ public class UserService {
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
     }
+
+
+    // Logica per seguire un altro utente
+    public void followUser(Long userId, Long targetUserId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new EntityNotFoundException("Target User not found"));
+        user.getFollowing().add(targetUser);
+        targetUser.getFollowers().add(user);
+        userRepository.save(user);
+        userRepository.save(targetUser);
+    }
+
+    // Logica per smettere di seguire un altro utente
+    public void unfollowUser(Long userId, Long targetUserId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new EntityNotFoundException("Target User not found"));
+        user.getFollowing().remove(targetUser);
+        targetUser.getFollowers().remove(user);
+        userRepository.save(user);
+        userRepository.save(targetUser);
+    }
 }

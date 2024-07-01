@@ -150,4 +150,16 @@ public class UserController {
         }
     }
 
+    @PutMapping("/{userId}/follow/{targetUserId}")
+    public ResponseEntity<String> followUser(@PathVariable Long userId, @PathVariable Long targetUserId) {
+        userService.followUser(userId, targetUserId);
+        return ResponseEntity.ok("User followed successfully");
+    }
+
+    @PutMapping("/{userId}/unfollow/{targetUserId}")
+    public ResponseEntity<String> unfollowUser(@PathVariable Long userId, @PathVariable Long targetUserId) {
+        userService.unfollowUser(userId, targetUserId);
+        return ResponseEntity.ok("User unfollowed successfully");
+    }
+
 }

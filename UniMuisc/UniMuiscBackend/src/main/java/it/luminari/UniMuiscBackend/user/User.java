@@ -10,6 +10,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -46,9 +48,13 @@ public class User implements UserDetails {
     private String avatar;
 
     @OneToMany(mappedBy = "user")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Post> posts;
 
     @OneToMany(mappedBy = "user")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Item> items;
 
     @ManyToMany
@@ -57,19 +63,19 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "track_id")
     )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Track> favouriteTracks;
 
     @ManyToMany(mappedBy = "likedByUsers")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Artist> likedArtists;
 
     @ManyToMany(mappedBy = "likedByUsers")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Album> likedAlbums;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
-    }
-
 
     @Column(name = "total_listening_time_in_minutes")
     private int totalListeningTimeInMinutes;
@@ -82,24 +88,45 @@ public class User implements UserDetails {
     @JoinColumn(name = "most_listened_artist_id")
     private Artist mostListenedArtist;
 
+    // Nuove relazioni per follower e following
+    @ManyToMany
+    @JoinTable(
+            name = "user_followers",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "follower_id")
+    )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<User> followers;
+
+    @ManyToMany(mappedBy = "followers")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<User> following;
+
+    // Override methods for UserDetails interface
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(); // Empty list since no roles/authorities are defined
+    }
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true; // Implement actual logic if needed
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return true; // Implement actual logic if needed
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return true; // Implement actual logic if needed
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return true; // Implement actual logic if needed
     }
 }
