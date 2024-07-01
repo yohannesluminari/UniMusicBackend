@@ -14,8 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -32,7 +31,7 @@ public class UserAffinityController {
     private AlbumRepository albumRepository;
 
     @GetMapping("/user-affinity/{userId1}/{userId2}")
-    public ResponseEntity<UserAffinityDTO> getUserAffinity(
+    public ResponseEntity<List<UserAffinityDTO>> getUserAffinities(
             @PathVariable Long userId1,
             @PathVariable Long userId2
     ) {
@@ -48,16 +47,31 @@ public class UserAffinityController {
             double albumAffinity = calculateAlbumAffinity(user1, user2);
             double artistAffinity = calculateArtistAffinity(user1, user2);
 
-            // Combine all affinities into a single score (simple sum in this case)
-            double totalAffinity = trackAffinity + albumAffinity + artistAffinity;
+            // Create a list to store affinities
+            List<UserAffinityDTO> userAffinities = new ArrayList<>();
 
-            // Create and return DTO with affinity details
-            UserAffinityDTO userAffinityDTO = new UserAffinityDTO(user1.getId(), user2.getId(), totalAffinity);
-            return ResponseEntity.ok(userAffinityDTO);
+            // Add track affinity to list
+            userAffinities.add(new UserAffinityDTO(user1.getId(), user2.getId(), trackAffinity));
+            // Add album affinity to list
+            userAffinities.add(new UserAffinityDTO(user1.getId(), user2.getId(), albumAffinity));
+            // Add artist affinity to list
+            userAffinities.add(new UserAffinityDTO(user1.getId(), user2.getId(), artistAffinity));
+
+            // Sort affinities based on score (descending order)
+            userAffinities.sort(Comparator.comparingDouble(UserAffinityDTO::getAffinityScore).reversed());
+
+            // Set rank based on sorted order
+            for (int i = 0; i < userAffinities.size(); i++) {
+                userAffinities.get(i).setRank(i + 1);
+            }
+
+            // Return sorted list of affinities
+            return ResponseEntity.ok(userAffinities);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(new UserAffinityDTO(-1L, -1L, 0.0));
+            return ResponseEntity.status(500).body(Collections.emptyList());
         }
     }
+
 
 
     // + 1 se hanno canzoni in comune tra i like
