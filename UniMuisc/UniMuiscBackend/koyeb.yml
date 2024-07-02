@@ -1,0 +1,16 @@
+name: UniMusicBackend
+regions:
+  - fra
+services:
+  - name: UniMusicService
+    runtime: container
+    build:
+      context: UniMuisc/UniMuiscBackend
+      dockerfile: Dockerfile
+    ports:
+      - 8080
+    healthcheck:
+      path: /health
+      interval: 60s
+    env:
+      - SPRING_PROFILES_ACTIVE=prod
