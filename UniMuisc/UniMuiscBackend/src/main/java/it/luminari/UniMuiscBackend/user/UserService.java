@@ -13,7 +13,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -56,6 +55,48 @@ public class UserService {
     @Value("${spring.mail.username}")
     private String emailSender;
 
+    /**
+     * Metodo per controllare la validità della password secondo i criteri specificati:
+     * - Almeno 8 caratteri
+     * - Almeno un numero
+     * - Almeno una lettera maiuscola
+     *
+     * @param password La password da controllare
+     * @throws IllegalArgumentException Se la password non rispetta i criteri
+     */
+    public void validatePassword(String password) {
+        if (password == null || password.isEmpty() || password.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters long");
+        }
+
+        boolean hasDigit = false;
+        boolean hasUpperCase = false;
+
+        for (char ch : password.toCharArray()) {
+            if (Character.isDigit(ch)) {
+                hasDigit = true;
+            } else if (Character.isUpperCase(ch)) {
+                hasUpperCase = true;
+            }
+
+            // Se entrambe le condizioni sono soddisfatte, possiamo uscire dal ciclo
+            if (hasDigit && hasUpperCase) {
+                return;
+            }
+        }
+
+        // Se una delle condizioni non è soddisfatta, lancia un'eccezione
+        if (!hasDigit) {
+            throw new IllegalArgumentException("Password must contain at least one digit");
+        }
+
+        if (!hasUpperCase) {
+            throw new IllegalArgumentException("Password must contain at least one uppercase letter");
+        }
+    }
+
+
+
 
     public Response register(Request request) {
         // Verifica se il nome utente esiste già
@@ -67,6 +108,9 @@ public class UserService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Email already in use");
         }
+
+        // Valida la password prima di procedere con la creazione dell'utente
+        validatePassword(request.getPassword());
 
         // Procedi con la creazione dell'utente se username ed email sono disponibili
         User user = new User();
@@ -86,6 +130,7 @@ public class UserService {
         BeanUtils.copyProperties(user, response);
         return response;
     }
+
 
 
     private void sendRegistrationConfirmationEmail(User user) {
@@ -168,14 +213,19 @@ public class UserService {
     }
 
 
-    public Response modify(Long id, Request request){
+    public Response modify(Long id, Request request) {
         User entity = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         entity.setUsername(request.getUsername());
-        entity.setPassword(request.getPassword());
         entity.setEmail(request.getEmail());
         entity.setAvatar(request.getAvatar());
+
+        // Valida la password solo se viene fornita una nuova password
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            validatePassword(request.getPassword());
+            entity.setPassword(passwordEncoder.encode(request.getPassword())); // Codifica la nuova password
+        }
 
         userRepository.save(entity);
 
@@ -183,6 +233,7 @@ public class UserService {
         BeanUtils.copyProperties(entity, response);
         return response;
     }
+
 
     public String delete(Long id){
         if(!userRepository.existsById(id)){

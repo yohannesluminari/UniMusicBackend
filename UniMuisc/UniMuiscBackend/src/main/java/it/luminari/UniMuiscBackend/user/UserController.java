@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,27 @@ public class UserController {
 
     @Autowired
     private TrackRepository trackRepository;
+
+    @PostMapping("/register")
+    public ResponseEntity<Response> registerUser(@Valid @RequestBody Request request) {
+        try {
+            Response response = userService.register(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            Response errorResponse = new Response();
+            errorResponse.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    // Aggiungi altri metodi se necessario, come logout, cambio password, etc.
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Response> handleAuthenticationException(AuthenticationException ex) {
+        Response response = new Response();
+        response.setMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Response> findById(@PathVariable Long id){
