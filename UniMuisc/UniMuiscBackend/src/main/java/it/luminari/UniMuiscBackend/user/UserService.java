@@ -135,8 +135,9 @@ public class UserService {
         message.setSubject("Benvenuto su UniMusic!");
         message.setText("Grazie per esserti registrato su UniMusic. Goditi la tua permanenza!");
 
-        javaMailSender.send(message); // Utilizza javaMailSender invece di mailSender
+        javaMailSender.send(message); // Invia l'email utilizzando JavaMailSender
     }
+
 
     private void sendAdminNotificationEmail(User user) {
         SimpleMailMessage message = new SimpleMailMessage();
