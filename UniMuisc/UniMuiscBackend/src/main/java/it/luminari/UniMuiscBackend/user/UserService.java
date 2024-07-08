@@ -97,40 +97,36 @@ public class UserService {
 
 
 
-
     public Response register(Request request) {
-        // Verifica se il nome utente esiste già
+        // Check if username already exists
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Username already taken");
         }
 
-        // Verifica se l'email esiste già
+        // Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Email already in use");
         }
 
-        // Valida la password prima di procedere con la creazione dell'utente
+        // Validate password
         validatePassword(request.getPassword());
 
-        // Procedi con la creazione dell'utente se username ed email sono disponibili
+        // Create new user entity
         User user = new User();
         BeanUtils.copyProperties(request, user);
-        user.setPassword(passwordEncoder.encode(request.getPassword())); // Codifica la password
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
+        // Save user
         userRepository.save(user);
 
-        // Invia email di conferma registrazione all'utente
+        // Send registration confirmation email
         sendRegistrationConfirmationEmail(user);
 
-        // Invia email di notifica all'indirizzo y.luminari@gmail.com
-        sendAdminNotificationEmail(user);
-
-        // Creazione della risposta senza includere la password
+        // Create response object (excluding password)
         Response response = new Response();
         BeanUtils.copyProperties(user, response);
         return response;
     }
-
 
 
     private void sendRegistrationConfirmationEmail(User user) {

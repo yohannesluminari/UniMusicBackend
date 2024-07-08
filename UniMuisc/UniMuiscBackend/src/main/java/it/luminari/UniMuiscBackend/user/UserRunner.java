@@ -1,6 +1,5 @@
 package it.luminari.UniMuiscBackend.user;
 
-import it.luminari.UniMuiscBackend.item.ItemRunner;
 import it.luminari.UniMuiscBackend.post.PostRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -22,23 +21,25 @@ public class UserRunner implements ApplicationRunner {
     private UserService userService;
 
     @Autowired
-    PostRunner postRunner;
-    @Autowired
-    ItemRunner itemRunner;
+    private PostRunner postRunner;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         // Lista degli utenti da inserire
         List<Request> users = Arrays.asList(
                 new Request("user1", "Password1", "user1@example.com", "avatar1.jpg"),
-                new Request("user2", "passwordD2", "user2@example.com", "avatar2.jpg")
+                new Request("user2", "passwordD2", "ciao@ciaone.com", "avatar2.jpg")
         );
 
         // Per ogni utente nella lista, verifica se l'email è valida e non esiste nel database
         users.forEach(request -> {
             if (isValidEmail(request.getEmail())) {
-                userService.register(request); // Registra solo se l'email è valida
-                System.out.println("Registrazione effettuata con successo per l'email: " + request.getEmail());
+                if (!userRepository.existsByUsername(request.getUsername())) {
+                    userService.register(request); // Registra solo se l'username non esiste
+                    System.out.println("Registrazione effettuata con successo per l'email: " + request.getEmail());
+                } else {
+                    System.out.println("Username già esistente: " + request.getUsername());
+                }
             } else {
                 System.out.println("Email non valida: " + request.getEmail());
             }
@@ -48,7 +49,6 @@ public class UserRunner implements ApplicationRunner {
         System.out.println("--- Users inserted ---");
         // Dopo aver registrato gli utenti, esegui i runner successivi
         postRunner.run(args);
-        itemRunner.run(args);
     }
 
     // Metodo semplificato per verificare se un'email è valida (non integra una vera verifica di esistenza delle email)
@@ -57,4 +57,3 @@ public class UserRunner implements ApplicationRunner {
         return email != null && email.matches("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}");
     }
 }
-
